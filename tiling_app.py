@@ -181,7 +181,7 @@ if st.button(text[lang]["button"]):
 
     if lang == "中文":
         st.markdown("""
-### 解题思路与状态转移推导（中文）
+### 解题思路与状态转移推导
 
 我们从一个 2×2 的小格子开始分析所有合法铺法：
 
@@ -291,7 +291,7 @@ DFS 实际上就是在构建一个状态转移图（树），其中剪枝条件�
         """)
     else:
         st.markdown("""
-### Solution Walkthrough (English)
+### Solution Walkthrough
 
 We begin with a 2×2 grid to explore all valid placements:
 
