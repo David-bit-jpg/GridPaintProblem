@@ -400,69 +400,25 @@ This blends DFS recursion with the essence of DP transitions — exploring all v
 
     # 以下为伪代码结构补充和进一步解释：
     if lang == "中文":
-        st.code("""
-# DFS 主体伪代码结构
-if x == n:
-    return 1
-
-if y == n:
-    return dfs(x + 1, 0, grid)
-
-if grid[x][y] is not None:
-    return dfs(x, y + 1, grid)
-
-total = 0
-for color in range(num_colors):
-    for direction in [HORIZONTAL, VERTICAL]:
-        dx, dy = directions[direction]
-        x2, y2 = x + dx, y + dy
-
-        if not in_bounds(x2, y2, n) or grid[x2][y2] is not None:
-            continue
-
-        conflict = False
-        for nx, ny in [(x - 1, y), (x, y - 1), (x2 + 1, y2), (x2, y2 + 1)]:
-            if in_bounds(nx, ny, n) and grid[nx][ny] == (color, direction):
-                conflict = True
-                break
-        if conflict:
-            continue
-
-        grid[x][y] = (color, direction)
-        grid[x2][y2] = (color, direction)
-        total += dfs(x, y + 1, grid)
-        grid[x][y] = None
-        grid[x2][y2] = None
-
-return total
-""")
         st.markdown("""
-### 状态转移的思维提升
-- 尽管我们没有显式写出三维 `dp[x][y][状态]`，但实际每一个 `grid[x][y]` 的内容就是一个隐式状态记录。
-- 使用 DFS 递归推进，就相当于遍历整个状态图。
-- 每一个递归深度即表示铺砖的进展，冲突剪枝就相当于剪去非法转移。
-""")
-    else:
-        st.code("""
+### 完整状态转移实现
+```python
 def dfs(x, y, grid):
+    nonlocal total_count
     if x == n:
-        return 1
-
+        total_count += 1
+        return
     if y == n:
-        return dfs(x + 1, 0, grid)
-
+        dfs(x + 1, 0, grid)
+        return
     if grid[x][y] is not None:
-        return dfs(x, y + 1, grid)
-
-    total = 0
+        dfs(x, y + 1, grid)
+        return
     for color in range(num_colors):
-        for direction in [HORIZONTAL, VERTICAL]:
-            dx, dy = directions[direction]
+        for direction, (dx, dy) in enumerate(directions):
             x2, y2 = x + dx, y + dy
-
             if not in_bounds(x2, y2, n) or grid[x2][y2] is not None:
                 continue
-
             conflict = False
             for nx, ny in [(x - 1, y), (x, y - 1), (x2 + 1, y2), (x2, y2 + 1)]:
                 if in_bounds(nx, ny, n) and grid[nx][ny] == (color, direction):
@@ -470,17 +426,59 @@ def dfs(x, y, grid):
                     break
             if conflict:
                 continue
-
             grid[x][y] = (color, direction)
             grid[x2][y2] = (color, direction)
-            total += dfs(x, y + 1, grid)
+            dfs(x, y + 1, grid)
             grid[x][y] = None
             grid[x2][y2] = None
 
-    return total
+grid = [[None for _ in range(n)] for _ in range(n)]
+total_count = 0
+dfs(0, 0, grid)
+return total_count
+```
+- 尽管我们没有显式写出三维 `dp[x][y][状态]`，但实际每一个 `grid[x][y]` 的内容就是一个隐式状态记录。
+- 使用 DFS 递归推进，就相当于遍历整个状态图。
+- 每一个递归深度即表示铺砖的进展，冲突剪枝就相当于剪去非法转移。
 """)
+    else:
         st.markdown("""
-### DFS as Implicit DP
+### Full DFS Implementation
+```python
+def dfs(x, y, grid):
+    nonlocal total_count
+    if x == n:
+        total_count += 1
+        return
+    if y == n:
+        dfs(x + 1, 0, grid)
+        return
+    if grid[x][y] is not None:
+        dfs(x, y + 1, grid)
+        return
+    for color in range(num_colors):
+        for direction, (dx, dy) in enumerate(directions):
+            x2, y2 = x + dx, y + dy
+            if not in_bounds(x2, y2, n) or grid[x2][y2] is not None:
+                continue
+            conflict = False
+            for nx, ny in [(x - 1, y), (x, y - 1), (x2 + 1, y2), (x2, y2 + 1)]:
+                if in_bounds(nx, ny, n) and grid[nx][ny] == (color, direction):
+                    conflict = True
+                    break
+            if conflict:
+                continue
+            grid[x][y] = (color, direction)
+            grid[x2][y2] = (color, direction)
+            dfs(x, y + 1, grid)
+            grid[x][y] = None
+            grid[x2][y2] = None
+
+grid = [[None for _ in range(n)] for _ in range(n)]
+total_count = 0
+dfs(0, 0, grid)
+return total_count
+```
 - Though we don’t use an explicit `dp[x][y][state]`, the `grid[x][y]` tuple implicitly encodes the state.
 - Each recursive DFS call represents a transition step in this DP space.
 - The depth of the recursion equals the number of dominoes placed, and pruning eliminates invalid paths.
